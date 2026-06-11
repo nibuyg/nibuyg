@@ -22,6 +22,8 @@ void next_scene()
 {
     printf("\n[ Enter를 누르면 계속... ]");
     while (getchar() != '\n');
+
+    // 다음 장면으로 넘어가기 위해 화면 초기화
     #ifdef _WIN32
     system("cls");
     #else
@@ -163,7 +165,9 @@ int main()
         {
             printf("\n\n\n\n\n\n\n\n\n\n\n현재 보유 돈 : %d", money);
             printf("\n스테이지 : %d", stage);
+
             printf("\n현재 보유한 아이템 : ");
+
             for (int i = 0; i < invent; i++)
             {
                 if (inventory[i][0] != '\0')
@@ -171,25 +175,38 @@ int main()
                     printf("[ %s ] ", inventory[i]);
                 }
             }
+
             printf("\n행동을 선택하시오");
             printf("\n[1] 카드 맞추기 게임");
             printf("\n[2] 상점");
             printf("\n선택 : ");
+
             scanf("%d", &select);
         }
+
+        // 카드 게임 선택
         else if (select == 1)
         {
             minBetMoney = money / 5;
+
             printf("\n최소 베팅 금액 : %d", minBetMoney);
             printf("\n\n베팅할 금액을 적으시오 : ");
+
             scanf("%d", &betMoney);
-            if (betMoney >= minBetMoney && betMoney <= money)
+
+            // 최소 금액 이상 베팅해야 함
+            if (betMoney >= minBetMoney &&
+                betMoney <= money)
             {
                 money -= betMoney;
+
+                // 게임 결과에 따라 돈 정산
                 money += cardGame(multiple) * betMoney;
+
                 multiple = 0;
                 betMoney = 0;
                 stage++;
+
                 useShop = 1;
                 select = 0;
             }
@@ -199,6 +216,8 @@ int main()
                 betMoney = 0;
             }
         }
+
+        // 상점 선택
         else if (select == 2)
         {
             if (useShop == 1)
@@ -209,15 +228,17 @@ int main()
             {
                 printf("상점 이용 가능 횟수를 모두 소진하였습니다");
             }
+
             useShop = 0;
             select = 0;
         }
+
+        // 잘못된 입력 처리
         else
         {
             printf("\n\n\n\n다시 선택하시오");
             select = 0;
         }
-    }
     
     if (money <= 0)
     {
@@ -293,20 +314,21 @@ int main()
 
 int eventRandom(int randomEvent)
 {
-    if (randomEvent >= 1 && randomEvent <= 20)
+    // 1~10이 나오면 카드 섞기 이벤트 발생
+    if (randomEvent >= 1 && randomEvent <= 10)
     {
         printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         printf("\n=========================");
         printf("\n==뒤집혀 있는 카드 섞기==");
         printf("\n=========================");
         Sleep(500);
-        return 1;
+
+        return 1; // 이벤트 발생
     }
     else
     {
-        return 0;
+        return 0; // 이벤트 미발생
     }
-    
 }
 
 int cardGame(int gameMoney)
@@ -455,19 +477,20 @@ int cardGame(int gameMoney)
 
         int clear = 1;
 
-        for (int row = 0; row < 4; row++) {
-
-            for (int column = 0; column < 4; column++) {
-
-                if (output[row][column] > 7) {
+        for (int row = 0; row < 4; row++)
+        {
+            for (int column = 0; column < 4; column++)
+            {
+                if (output[row][column] > 7)
+                {
                     clear = 0;
                 }
             }
         }
 
+        // 뒤집히지 않은 카드가 남아있는지 확인
         if (clear == 1)
         {
-
             printf("\n모든 카드를 맞췄습니다!\n");
 
             gameMoney += gameTry / 2;
@@ -505,43 +528,40 @@ int cardGame(int gameMoney)
                 { 0, 0, 0, 0 }
             };
 
-            int mixNumber[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            int mixNumber[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             int next = 0;
             int randomNext = 0;
 
+            // 아직 맞추지 못한 카드만 따로 수집
             for (int row = 0; row < 4; row++)
             {
-
                 for (int column = 0; column < 4; column++)
                 {
-
                     if ((output[row][column] > 7) && (check[row][column] != 2))
                     {
                         mix[row][column] = 1;
                         mixNumber[next] = color[row][column];
-                        printf("%d mixNumber[next]\n", mixNumber[next]);
-                        printf("%d color[row][column]\n", color[row][column]);
                         next++;
                     }
                 }
             }
+
+            // 수집한 카드들을 랜덤한 위치로 다시 배치
             for (int row = 0; row < 4; row++)
             {
-
                 for (int column = 0; column < 4; column++)
                 {
-
                     if ((output[row][column] > 7) && (mix[row][column] == 1))
                     {
                         randomNext = rand() % next;
                         color[row][column] = mixNumber[randomNext];
-                        printf("%d mixNumber[randomNext]\n", mixNumber[randomNext]);
-                        printf("%d color[row][column]\n", color[row][column]);
+
                         for (int i = randomNext; i < next - 1; i++)
                         {
                             mixNumber[i] = mixNumber[i + 1];
                             mixNumber[i + 1] = 0;
                         }
+
                         next--;
                     }
                 }
@@ -597,17 +617,22 @@ int cardGame(int gameMoney)
         }
         int selectBehave = 0;
         int originalBetMoney = betMoney;
+
         if (itemOriginalBetMoney == 1)
         {
             printf("\n현재 [원금 방지]가 발동 중입니다\n");
         }
+
         printf("\n현재 베팅 금액 : %d\n", betMoney);
         printf("남은 시도 횟수 : %d\n", gameTry);
+
         printf("\n[1] 카드 뒤집기");
         printf("\n[2] 아이템 사용");
         printf("\n행동을 선택하시오 : ");
+
         scanf("%d", &selectBehave);
 
+        // 플레이어 행동 선택
         if (selectBehave == 1)
         {
             printf("첫번째 카드 선택: ");
@@ -615,29 +640,25 @@ int cardGame(int gameMoney)
 
             card1Row = card1 / 10 - 1;
             card1Column = card1 % 10 - 1;
-            
+
             if (check[card1Row][card1Column] == 0)
             {
                 printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
                 for (int row = 0; row < 4; row++)
                 {
-
                     for (int line = 0; line < 5; line++)
                     {
-
                         for (int column = 0; column < 4; column++)
                         {
-
                             if ((output[row][column] <= 7) ||
                                 (output[row][column] == card1))
                             {
-
                                 printf("%s ",
                                     cards[color[row][column]][line]);
                             }
                             else
                             {
-
                                 if (line == 0)
                                     printf("┌─────┐ ");
 
@@ -661,6 +682,8 @@ int cardGame(int gameMoney)
 
                     printf("\n");
                 }
+
+                // 첫 번째 카드 공개
                 check[card1Row][card1Column] = 1;
             }
             else
@@ -668,6 +691,7 @@ int cardGame(int gameMoney)
                 printf("\n잘못된 카드입니다. 다시 고르세요.\n");
                 getchar();
                 getchar();
+
                 card1 = -1;
                 selectBehave = 0;
                 continue;
@@ -676,10 +700,10 @@ int cardGame(int gameMoney)
             if (!((0 <= card1Row) && (card1Row < 4) &&
                 (0 <= card1Column) && (card1Column < 4)))
             {
-
                 printf("\n잘못된 카드입니다. 다시 고르세요.\n");
                 getchar();
                 getchar();
+
                 selectBehave = 0;
                 continue;
             }
@@ -697,8 +721,10 @@ int cardGame(int gameMoney)
                 printf("\n잘못된 카드입니다. 다시 고르세요.\n");
                 getchar();
                 getchar();
+
                 gameTry--;
                 check[card1Row][card1Column] = 0;
+
                 selectBehave = 0;
                 continue;
             }
@@ -706,26 +732,22 @@ int cardGame(int gameMoney)
             if (check[card2Row][card2Column] == 0)
             {
                 printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
                 for (int row = 0; row < 4; row++)
                 {
-
                     for (int line = 0; line < 5; line++)
                     {
-
                         for (int column = 0; column < 4; column++)
                         {
-
                             if ((output[row][column] <= 7) ||
                                 (output[row][column] == card1) ||
                                 (output[row][column] == card2))
                             {
-
                                 printf("%s ",
                                     cards[color[row][column]][line]);
                             }
                             else
                             {
-
                                 if (line == 0)
                                     printf("┌─────┐ ");
 
@@ -749,7 +771,10 @@ int cardGame(int gameMoney)
 
                     printf("\n");
                 }
+
                 Sleep(500);
+
+                // 두 번째 카드 공개
                 check[card2Row][card2Column] = 1;
             }
             else
@@ -757,8 +782,10 @@ int cardGame(int gameMoney)
                 printf("\n잘못된 카드입니다. 다시 고르세요.\n");
                 getchar();
                 getchar();
+
                 card2 = -1;
                 gameTry--;
+
                 selectBehave = 0;
                 continue;
             }
@@ -767,10 +794,10 @@ int cardGame(int gameMoney)
             if (!((0 <= card2Row) && (card2Row < 4) &&
                 (0 <= card2Column) && (card2Column < 4)))
             {
-
                 printf("\n잘못된 카드입니다. 다시 고르세요.\n");
                 getchar();
                 getchar();
+
                 selectBehave = 0;
                 continue;
             }
@@ -778,16 +805,20 @@ int cardGame(int gameMoney)
             {
                 randomEvent = rand() % 100 + 1;
                 randomResult = eventRandom(randomEvent);
+
+                // 두 카드가 다르면 시도 횟수 감소
                 if (color[card1Row][card1Column] != color[card2Row][card2Column])
                 {
                     gameTry--;
                 }
+
                 selectBehave = 0;
             }
         }
         else if (selectBehave == 2)
         {
             printf("\n현재 보유 중인 아이템 : \n");
+
             for (int i = 0; i < invent; i++)
             {
                 if (inventory[i][0] != '\0')
@@ -795,20 +826,27 @@ int cardGame(int gameMoney)
                     printf("[ %d - %s]\n", i + 1, inventory[i]);
                 }
             }
+
             printf("아이템을 선택하시오 : ");
+
             int selectitem = 0;
             scanf("%d", &selectitem);
+
             if (itemEffect[selectitem - 1] == 1)
             {
                 gameTry += 3;
+
                 strcpy(inventory[selectitem - 1], "\0");
+
                 for (int i = selectitem - 1; i < inventCount - 1; i++)
                 {
                     strcpy(inventory[i], inventory[i + 1]);
                     strcpy(inventory[i + 1], "\0");
+
                     itemEffect[i] = itemEffect[i + 1];
                     itemEffect[i + 1] = 0;
                 }
+
                 selectBehave = 0;
             }
             else if (itemEffect[selectitem - 1] == 2)
@@ -896,11 +934,14 @@ void shop()
     srand(time(NULL));
 
     int count = 0;
+
+    // 현재 인벤토리에 들어있는 아이템 개수 확인
     while (inventory[count][0] != '\0')
     {
         count++;
     }
 
+    // 상점에 진열될 상품 랜덤 생성
     for (int i = 0; i < 5; i++)
     {
         int j = 0;
@@ -910,10 +951,12 @@ void shop()
         itemCount[i] = j + 1;
         itemShopCount++;
     }
-    
+
     while (1)
     {
         printf("\n\n\n\n\n\n\n\n\[상점]\n");
+
+        // 현재 판매 중인 상품 출력
         for (int i = 0; i < 5; i++)
         {
             if (itemList[i][0] != '\0')
@@ -922,11 +965,14 @@ void shop()
                 printf(" - %d원\n", priceList[i]);
             }
         }
+
         if (reroll == 1)
         {
             printf("[ %d. 상점 새로고침 ] - 2000원", itemShopCount + 1);
         }
+
         printf("\n\n현재 보유 중인 아이템[%d] : ", count);
+
         for (int i = 0; i < invent; i++)
         {
             if (inventory[i][0] != '\0')
@@ -934,81 +980,121 @@ void shop()
                 printf("[ %s ] ", inventory[i]);
             }
         }
+
         printf("\n현재 보유 돈 : %d", money);
+
         printf("\n\n[1] 상품 구매");
         printf("\n[2] 상점 나가기");
         printf("\n진행할 행동을 선택하시오 : ");
+
         scanf("%d", &selectBehave);
+
+        // 상품 구매
         if (selectBehave == 1)
         {
             printf("\n구매하실 상품을 고르시오 : ");
             scanf("%d", &selectItem);
-            if (money >= priceList[selectItem - 1] && selectItem <= itemShopCount && selectItem >= 1 && count < invent)
+
+            // 구매 성공
+            if (money >= priceList[selectItem - 1] &&
+                selectItem <= itemShopCount &&
+                selectItem >= 1 &&
+                count < invent)
             {
                 strcpy(inventory[count], itemList[selectItem - 1]);
                 money -= priceList[selectItem - 1];
                 itemEffect[count] = itemCount[selectItem - 1];
+
                 strcpy(itemList[selectItem - 1], "\0");
+
+                // 구매한 상품을 목록에서 제거
                 for (int i = selectItem - 1; i < itemShopCount - 1; i++)
                 {
                     strcpy(itemList[i], itemList[i + 1]);
                     strcpy(itemList[i + 1], "\0");
+
                     itemCount[i] = itemCount[i + 1];
                     itemCount[i + 1] = 0;
+
                     priceList[i] = priceList[i + 1];
                     priceList[i + 1] = 0;
                 }
+
                 itemShopCount--;
                 count++;
                 inventCount = count;
+
                 selectItem = 0;
                 selectBehave = 0;
             }
-            else if (money < priceList[selectItem - 1] && selectItem <= itemShopCount && selectItem >= 1)
+
+            // 돈 부족
+            else if (money < priceList[selectItem - 1] &&
+                selectItem <= itemShopCount &&
+                selectItem >= 1)
             {
                 printf("\n돈이 부족합니다");
                 selectBehave = 0;
             }
-            else if (money >= 2000 && selectItem == itemShopCount + 1 && reroll == 1)
+
+            // 상점 새로고침
+            else if (money >= 2000 &&
+                selectItem == itemShopCount + 1 &&
+                reroll == 1)
             {
                 itemShopCount = 0;
+
+                // 새로운 상품 목록 생성
                 for (int i = 0; i < 5; i++)
                 {
                     int j = 0;
                     j = rand() % itemAmount + 0;
+
                     priceList[i] = price[j];
                     strcpy(itemList[i], item[j]);
                     itemCount[i] = j + 1;
+
                     itemShopCount++;
                 }
+
                 money -= 2000;
                 reroll = 0;
                 selectBehave = 0;
             }
-            else if (money < 2000 && selectItem == itemShopCount + 1 && reroll == 1)
+
+            else if (money < 2000 &&
+                selectItem == itemShopCount + 1 &&
+                reroll == 1)
             {
                 printf("\n돈이 부족합니다");
                 selectBehave = 0;
             }
-            else if (selectBehave <= itemShopCount && count >= invent)
+
+            // 인벤토리가 가득 찬 경우
+            else if (selectBehave <= itemShopCount &&
+                count >= invent)
             {
                 printf("저장공간이 모두 찼습니다");
                 selectBehave = 0;
             }
+
             else
             {
                 printf("\n다시 선택하시오");
                 selectBehave = 0;
             }
         }
+
+        // 상점 종료
         else if (selectBehave == 2)
         {
             return;
         }
+
         else
         {
             printf("\n다시 선택하시오 ");
             selectBehave = 0;
         }
-    } 
+    }
 }
